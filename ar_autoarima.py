@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import numpy as np
 from pmdarima import auto_arima
 

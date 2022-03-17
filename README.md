@@ -8,10 +8,10 @@
     cd /disks/sdb 
 _*WARNING: only use directories starting with the above address, not /  (meaning: home dir)_
 
-#### 4. Navigate to the following to fing the git project and Virtual Environment
+#### 4. Navigate to the following to find the git project and Virtual Environment
     /disks/sdb/bubutanu
 
 #### 5. Enter the virtual environment using
     . venv/bin/activate
 
-#### 6. Find everything in the repo. Enjoy
+#### 6. Find everything in the repo. Enjoy :)

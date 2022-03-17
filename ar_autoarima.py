@@ -53,38 +53,16 @@ if __name__ == "__main__":
     print('Start TESTS: \n\n\n')
 
     for type in test_types:
-        # auto_arima(y=DF[GROUND_TRUTH_COLUMN], start_p=0, start_q=0,
-        #            test='adf',
-        #            max_p=10, max_q=10,
-        #            seasonal=True,
-        #            m=52,
-        #            max_d=2,
-        #            start_P=0,
-        #            max_P=10,
-        #            start_Q=0,
-        #            max_Q=10,
-        #            max_D=1,
-        #            information_criterion=type,
-        #            trace=True,
-        #            error_action='ignore',
-        #            suppress_warnings=True,
-        #            stepwise=False,
-        #            n_fits=50,
-        #            n_jobs=32,
-        #            maxiter=500)
-
-
-        ### TEST VERSION
         auto_arima(y=DF[GROUND_TRUTH_COLUMN], start_p=0, start_q=0,
                    test='adf',
-                   max_p=1, max_q=1,
+                   max_p=10, max_q=10,
                    seasonal=True,
                    m=52,
-                   max_d=1,
+                   max_d=2,
                    start_P=0,
-                   max_P=1,
+                   max_P=10,
                    start_Q=0,
-                   max_Q=1,
+                   max_Q=10,
                    max_D=1,
                    information_criterion=type,
                    trace=True,
@@ -92,8 +70,29 @@ if __name__ == "__main__":
                    suppress_warnings=True,
                    stepwise=False,
                    n_fits=50,
-                   n_jobs=1,
+                   n_jobs=32,
                    maxiter=500)
+
+        ### TEST VERSION
+        # auto_arima(y=DF[GROUND_TRUTH_COLUMN], start_p=0, start_q=0,
+        #            test='adf',
+        #            max_p=1, max_q=1,
+        #            seasonal=True,
+        #            m=52,
+        #            max_d=1,
+        #            start_P=0,
+        #            max_P=1,
+        #            start_Q=0,
+        #            max_Q=1,
+        #            max_D=1,
+        #            information_criterion=type,
+        #            trace=True,
+        #            error_action='ignore',
+        #            suppress_warnings=True,
+        #            stepwise=False,
+        #            n_fits=50,
+        #            n_jobs=1,
+        #            maxiter=500)
         print("Test type: {type}".format(type=type))
         print('\n\n')
         

@@ -26,8 +26,12 @@ class ARModelSpecification:
         self.seasonal_order = seasonal_order
         self.model_name = None
 
+    def _get_ar_model_name(self, order, s_order=None):
+        sorder_str = '' if s_order is None else str(s_order)
+        return str(order) + sorder_str
+
     def init_model(self, endog, exog=None):
-        self.model_name = get_ar_model_name(self.order, self.seasonal_order)
+        self.model_name = self._get_ar_model_name(self.order, self.seasonal_order)
         return self.model_class(endog=endog, exog=exog, order=self.order, seasonal_order=self.seasonal_order,
                                 freq='W')  # TODO: check if freq correct
 
@@ -45,9 +49,9 @@ class ARModelSpecification:
     def __str__(self):
         model_class_str = ""
         if self.model_class == statsmodels.tsa.arima.model.ARIMA:
-            model_class_str = "statsmodels.tsa.arima.model.ARIMA"
+            model_class_str = "ARIMA"
         elif self.model_class == statsmodels.tsa.statespace.sarimax.SARIMAX:
-            model_class_str = "statsmodels.tsa.statespace.sarimax.SARIMAX"
+            model_class_str = "SARIMAX"
         else:
             model_class_str = "unknown class"
         return model_class_str + " " + str(self.model_name)
@@ -55,9 +59,9 @@ class ARModelSpecification:
     def __repr__(self):
         model_class_str = ""
         if self.model_class == statsmodels.tsa.arima.model.ARIMA:
-            model_class_str = "statsmodels.tsa.arima.model.ARIMA"
+            model_class_str = "ARIMA"
         elif self.model_class == statsmodels.tsa.statespace.sarimax.SARIMAX:
-            model_class_str = "statsmodels.tsa.statespace.sarimax.SARIMAX"
+            model_class_str = "SARIMAX"
         else:
             model_class_str = "unknown class"
         return model_class_str + " " + str(self.model_name)

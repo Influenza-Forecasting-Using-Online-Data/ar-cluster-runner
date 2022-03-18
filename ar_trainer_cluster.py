@@ -45,12 +45,16 @@ TEST_INTERVALS = [
 ]
 
 MODEL_SPECS = [
-    ARModelSpecification(order=(3, 0, 0), model_class=SARIMAX),
-    ARModelSpecification(order=(4, 0, 0), model_class=SARIMAX),
-    # ARModelSpecification(order=(3, 1, 0), seasonal_order=(3, 1, 0, 52), model_class=SARIMAX),
-    # ARModelSpecification(order=(3, 1, 1), seasonal_order=(3, 1, 1, 52), model_class=SARIMAX),
-    # ARModelSpecification(order=(5, 0, 0), seasonal_order=(5, 0, 0, 52), model_class=SARIMAX),
-    # ARModelSpecification(order=(5, 1, 0), seasonal_order=(5, 1, 0, 52), model_class=SARIMAX),
+    ARModelSpecification(order=(1, 0, 1), model_class=SARIMAX),
+    ARModelSpecification(order=(1, 1, 1), model_class=SARIMAX),
+    ARModelSpecification(order=(3, 0, 1), model_class=SARIMAX), # best BIC
+    ARModelSpecification(order=(3, 1, 1), model_class=SARIMAX),
+    ARModelSpecification(order=(1, 0, 1), seasonal_order=(2, 0, 0, 52), model_class=SARIMAX),
+    ARModelSpecification(order=(1, 1, 1), seasonal_order=(2, 0, 0, 52), model_class=SARIMAX),
+    ARModelSpecification(order=(1, 1, 1), seasonal_order=(2, 1, 0, 52), model_class=SARIMAX),
+    ARModelSpecification(order=(3, 0, 0), seasonal_order=(2, 0, 2, 52), model_class=SARIMAX),
+    ARModelSpecification(order=(3, 1, 0), seasonal_order=(2, 0, 2, 52), model_class=SARIMAX),
+    ARModelSpecification(order=(3, 1, 0), seasonal_order=(2, 1, 2, 52), model_class=SARIMAX),
 ]
 
 

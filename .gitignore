@@ -1,3 +1,7 @@
 .ipynb_checkpoints
 __pycache__
 *.bak
+
+output_autoarima.txt
+
+/ar_trainer_cluster_out

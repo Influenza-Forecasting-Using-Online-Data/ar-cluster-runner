@@ -45,25 +45,24 @@ TEST_INTERVALS = [
 ]
 
 MODEL_SPECS = [
-    ARModelSpecification(order=(1, 0, 1), model_class=SARIMAX),
+    ARModelSpecification(order=(0, 1, 2), model_class=SARIMAX),  # best BIC
+    ARModelSpecification(order=(0, 1, 2), seasonal_order=(1, 0, 0, 52), model_class=SARIMAX),
+    ARModelSpecification(order=(0, 1, 2), seasonal_order=(0, 0, 1, 52), model_class=SARIMAX),
+    ARModelSpecification(order=(0, 1, 3), model_class=SARIMAX),
     ARModelSpecification(order=(1, 1, 1), model_class=SARIMAX),
-    ARModelSpecification(order=(3, 0, 1), model_class=SARIMAX), # best BIC
-    ARModelSpecification(order=(3, 1, 1), model_class=SARIMAX),
-    ARModelSpecification(order=(1, 0, 1), seasonal_order=(2, 0, 0, 52), model_class=SARIMAX),
-    ARModelSpecification(order=(1, 1, 1), seasonal_order=(2, 0, 0, 52), model_class=SARIMAX),
-    ARModelSpecification(order=(1, 1, 1), seasonal_order=(2, 1, 0, 52), model_class=SARIMAX),
-    ARModelSpecification(order=(3, 0, 0), seasonal_order=(2, 0, 2, 52), model_class=SARIMAX),
-    ARModelSpecification(order=(3, 1, 0), seasonal_order=(2, 0, 2, 52), model_class=SARIMAX),
-    ARModelSpecification(order=(3, 1, 0), seasonal_order=(2, 1, 2, 52), model_class=SARIMAX),
+    ARModelSpecification(order=(2, 1, 1), seasonal_order=(1, 0, 1, 52), model_class=SARIMAX),
+    ARModelSpecification(order=(2, 1, 1), seasonal_order=(1, 0, 2, 52), model_class=SARIMAX),  # best AIC
+    ARModelSpecification(order=(2, 1, 1), seasonal_order=(0, 0, 2, 52), model_class=SARIMAX),
+    ARModelSpecification(order=(2, 1, 1), seasonal_order=(1, 0, 3, 52), model_class=SARIMAX),
+    ARModelSpecification(order=(3, 1, 1), seasonal_order=(0, 0, 2, 52), model_class=SARIMAX),
 ]
-
 
 STEPS = 1
 OPTIMIZE_METHOD = 'powell'
 MAXITER = 500
 COV_TYPE = None
 
-PICKLE_TEST_RESULT = True  # boolean
+PICKLE_TEST_RESULT = False  # boolean
 
 # Plan to create scripts on UCL nodes:
 # - Calculate AIC, BIC on the entire dataset => output results to files (use pmdarima.auto_arima)
@@ -122,7 +121,8 @@ def write_summary(relative_output_path):
         f.write("TRAINING/TESTING INTERVALS\n")
         for i in range(0, len(TRAIN_INTERVALS)):
             f.write(padding + "# " + str(i + 1) + ": \n" + padding + padding + "training=" + prettify_interval(
-                TRAIN_INTERVALS[i]) + "\n" + padding + padding + "testing=" + prettify_interval(TEST_INTERVALS[i]) + "\n")
+                TRAIN_INTERVALS[i]) + "\n" + padding + padding + "testing=" + prettify_interval(
+                TEST_INTERVALS[i]) + "\n")
 
 
 def prettify_interval(time_interval):
@@ -159,29 +159,31 @@ def run():
             os.mkdir(test_result_folder_path)
 
         for model_spec in MODEL_SPECS:
-            # try:
-            model = model_spec.init_model(endog=DF[GROUND_TRUTH_COLUMN][train_interval[0]:train_interval[1]])
+            try:
+                model = model_spec.init_model(endog=DF[GROUND_TRUTH_COLUMN][train_interval[0]:train_interval[1]])
 
-            LOG.info(
-                "TRAIN model_spec={m} on train_interval={tri}".format(m=str(model_spec), tri=prettify_interval(
-                    train_interval)))
-            train_result = train_model(model, method=OPTIMIZE_METHOD, maxiter=MAXITER, cov_type=COV_TYPE)
+                LOG.info(
+                    "TRAIN model_spec={m} on train_interval={tri}".format(m=str(model_spec), tri=prettify_interval(
+                        train_interval)))
+                train_result = train_model(model, method=OPTIMIZE_METHOD, maxiter=MAXITER, cov_type=COV_TYPE)
 
-            LOG.info("TEST model_spec={m} on test_interval={ti}".format(m=str(model_spec), ti=prettify_interval(test_interval)))
-            y_test_prediction, test_result = test_model(DF[GROUND_TRUTH_COLUMN], train_result, start=test_interval[0],
-                                                        end=test_interval[1],
-                                                        steps=1)
-            predictions_df[model_spec.model_name] = y_test_prediction
+                LOG.info("TEST model_spec={m} on test_interval={ti}".format(m=str(model_spec),
+                                                                            ti=prettify_interval(test_interval)))
+                y_test_prediction, test_result = test_model(DF[GROUND_TRUTH_COLUMN], train_result,
+                                                            start=test_interval[0],
+                                                            end=test_interval[1],
+                                                            steps=1)
+                predictions_df[model_spec.model_name] = y_test_prediction
 
-            if PICKLE_TEST_RESULT:
-                test_result_file_name = model_spec.model_name + "_test_result_obj"
-                test_result_file_path = os.path.join(test_result_folder_path, test_result_file_name)
-                LOG.info("PICKLE test_result in file={f}".format(f=test_result_file_name))
-                with open(test_result_file_path, "w") as f:
-                    test_result.save(test_result_file_path)
-            # except:
-            #     LOG.error("Failed running model_spec={m} on train_interval={tri}, test_interval={ti}".format(
-            #         m=str(model_spec), tri=str(train_interval), ti=str(test_interval)))
+                if PICKLE_TEST_RESULT:
+                    test_result_file_name = model_spec.model_name + "_test_result_obj"
+                    test_result_file_path = os.path.join(test_result_folder_path, test_result_file_name)
+                    LOG.info("PICKLE test_result in file={f}".format(f=test_result_file_name))
+                    with open(test_result_file_path, "w") as f:
+                        test_result.save(test_result_file_path)
+            except:
+                LOG.error("Failed running model_spec={m} on train_interval={tri}, test_interval={ti}".format(
+                    m=str(model_spec), tri=str(train_interval), ti=str(test_interval)))
         all_test_predictions_df = all_test_predictions_df.append(predictions_df, ignore_index=False)
     all_test_predictions_df.to_csv(os.path.join(relative_output_path, "predictions_df.csv"))
     LOG.info("FINISHED")

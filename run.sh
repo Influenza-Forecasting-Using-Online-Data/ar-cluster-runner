@@ -12,9 +12,9 @@ usage () {
 if [ -z $1 ]; then
    # No argument
    usage
-elif [$1 == 'trainer']; then
+elif [ $1 = "trainer" ]; then
    nohup python ar_trainer_cluster.py > trainer.out 2>&1 &
-elif [$1 == 'autoarima']
+elif [ $1 = "autoarima" ]; then
    nohup python ar_autoarima.py > autoarima.out 2>&1 &
 else
    usage

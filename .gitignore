@@ -5,3 +5,5 @@ __pycache__
 output_autoarima.txt
 
 /ar_trainer_cluster_out
+
+pass_file

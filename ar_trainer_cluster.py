@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 from datetime import datetime
 
 import pandas as pd
@@ -130,6 +131,7 @@ def prettify_interval(time_interval):
 
 
 def run():
+    start_time = time.time()
     if not os.path.exists(OUTPUT_ROOT_DIR):
         os.mkdir(OUTPUT_ROOT_DIR)
     folder_timestamp = str(datetime.now()).replace(":", "_").replace(".", "_")
@@ -172,7 +174,7 @@ def run():
                 y_test_prediction, test_result = test_model(DF[GROUND_TRUTH_COLUMN], train_result,
                                                             start=test_interval[0],
                                                             end=test_interval[1],
-                                                            steps=1)
+                                                            steps=STEPS)
                 predictions_df[model_spec.model_name] = y_test_prediction
 
                 if PICKLE_TEST_RESULT:
@@ -187,6 +189,7 @@ def run():
         all_test_predictions_df = all_test_predictions_df.append(predictions_df, ignore_index=False)
     all_test_predictions_df.to_csv(os.path.join(relative_output_path, "predictions_df.csv"))
     LOG.info("FINISHED")
+    LOG.info("ELAPSED TIME = %s s" % (time.time() - start_time))
 
 
 if __name__ == '__main__':

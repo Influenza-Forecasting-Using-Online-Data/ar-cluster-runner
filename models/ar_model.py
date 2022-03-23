@@ -54,7 +54,7 @@ class ARModelSpecification:
             model_class_str = "SARIMAX"
         else:
             model_class_str = "unknown class"
-        return model_class_str + " " + str(self.model_name)
+        return model_class_str + " " + str(self._get_ar_model_name(self.order, self.seasonal_order))
 
     def __repr__(self):
         model_class_str = ""

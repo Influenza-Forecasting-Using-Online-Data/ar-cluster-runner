@@ -1,6 +1,7 @@
 import logging
 import os
 import time
+import sys
 from datetime import datetime
 
 import pandas as pd
@@ -46,16 +47,7 @@ TEST_INTERVALS = [
 ]
 
 MODEL_SPECS = [
-    ARModelSpecification(order=(0, 1, 2), model_class=SARIMAX),  # best BIC
-    ARModelSpecification(order=(0, 1, 2), seasonal_order=(1, 0, 0, 52), model_class=SARIMAX),
-    ARModelSpecification(order=(0, 1, 2), seasonal_order=(0, 0, 1, 52), model_class=SARIMAX),
-    ARModelSpecification(order=(0, 1, 3), model_class=SARIMAX),
-    ARModelSpecification(order=(1, 1, 1), model_class=SARIMAX),
-    ARModelSpecification(order=(2, 1, 1), seasonal_order=(1, 0, 1, 52), model_class=SARIMAX),
-    ARModelSpecification(order=(2, 1, 1), seasonal_order=(1, 0, 2, 52), model_class=SARIMAX),  # best AIC
-    ARModelSpecification(order=(2, 1, 1), seasonal_order=(0, 0, 2, 52), model_class=SARIMAX),
-    ARModelSpecification(order=(2, 1, 1), seasonal_order=(1, 0, 3, 52), model_class=SARIMAX),
-    ARModelSpecification(order=(3, 1, 1), seasonal_order=(0, 0, 2, 52), model_class=SARIMAX),
+    ARModelSpecification(order=(1, 0, 0), model_class=SARIMAX),  # best BIC
 ]
 
 STEPS = 1
@@ -118,6 +110,7 @@ def write_summary(relative_output_path):
         for model_spec in MODEL_SPECS:
             f.write(padding + "{m}\n".format(m=str(model_spec)))
         f.write("\n")
+        f.write("STEPS = %i\n\n" % STEPS)
         f.write("OPTIMIZATION METHOD = {o} \n\n".format(o=OPTIMIZE_METHOD))
         f.write("TRAINING/TESTING INTERVALS\n")
         for i in range(0, len(TRAIN_INTERVALS)):
@@ -193,4 +186,13 @@ def run():
 
 
 if __name__ == '__main__':
+    try:
+        STEPS = int(sys.argv[1])
+    except:
+        print("Cmd line argument STEPS must be integer value greater than 0")
+        raise Exception("Cmd line argument STEPS must be integer value greater than 0")
+
+    if STEPS < 1:
+        print("Cmd line argument STEPS must be integer value greater than 0")
+        raise Exception("Cmd line argument STEPS must be integer value greater than 0")
     run()

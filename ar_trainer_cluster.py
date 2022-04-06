@@ -1,7 +1,8 @@
 import logging
 import os
-import time
 import sys
+import time
+import traceback
 from datetime import datetime
 
 import pandas as pd
@@ -15,10 +16,14 @@ GROUND_TRUTH_COLUMN = 'Disease Rate'
 PERSISTENCE_COL_NAME = 'Persistence'
 BASELINE_SHIFT = 1
 
-INCLUDE_EXOG = False
+INCLUDE_EXOG = True  # If False, ignores SEARCH_QUERY_THRESHOLD value and does not add any search query terms to dataframe
+SEARCH_QUERY_THRESHOLD = 50  # options include 50, 100, 150, 200, 250, 300, 350, 400
 
-DF = get_week_range_df('week range', include_search_terms=INCLUDE_EXOG)
-# DF = create_persistence(DF, BASELINE_SHIFT, persistance_col_name=PERSISTENCE_COL_NAME)
+DF = get_week_range_df('week range', include_search_terms=INCLUDE_EXOG, search_query_threshold=SEARCH_QUERY_THRESHOLD)
+
+EXOG = None
+if INCLUDE_EXOG is True:
+    EXOG = DF.drop(labels=['Disease Rate', 'year', 'week'], axis=1, inplace=False)
 
 TRAIN_INTERVALS = [
     (to_week_range(2004, 2), to_week_range(2008, 52)),
@@ -47,10 +52,13 @@ TEST_INTERVALS = [
 ]
 
 MODEL_SPECS = [
-    ARModelSpecification(order=(1, 0, 0), model_class=SARIMAX),  # best BIC
+    ARModelSpecification(order=(1, 0, 1), seasonal_order=(2, 0, 0, 52), model_class=SARIMAX),
+    ARModelSpecification(order=(1, 0, 1), model_class=SARIMAX),
+    ARModelSpecification(order=(2, 1, 1), seasonal_order=(0, 0, 2, 52), model_class=SARIMAX),
+    ARModelSpecification(order=(0, 1, 2), model_class=SARIMAX),
 ]
 
-STEPS = 1
+STEPS = 2
 OPTIMIZE_METHOD = 'powell'
 MAXITER = 500
 COV_TYPE = None
@@ -80,25 +88,21 @@ def train_model(model, method='powell', maxiter=500, cov_type=None):
     return train_result
 
 
-def test_model(endog_all, train_result, start, end, steps=1):
-    test_result = None
+def test_model(endog_all, exog_all, train_result, start, end, steps=1):
     y_test_prediction = None
+    test_result = train_result.apply(endog=endog_all, exog=exog_all, refit=False)
     if steps == 1:
-        test_result = train_result.apply(endog=endog_all, refit=False)
         y_test_prediction = test_result.predict(start=start, end=end, dynamic=False)
     else:
         endog_test = endog_all[start:end]
         steps_ahead_forecasts = endog_test.copy(deep=True).iloc[0:steps - 1]
         for i in range(0, len(endog_test) - steps + 1):
-            test_result = train_result.append(endog=[endog_test.iloc[i]], refit=False)
-            forecast_point_steps_ahead = pd.Series(test_result.forecast(steps=steps)[steps - 1],
+            # test_result = train_result.append(endog=[endog_test.iloc[i]], refit=False)
+            forecast_point_steps_ahead = pd.Series(test_result.predict(start=i, end=i + steps, dynamic=True)[steps - 1],
                                                    index=[endog_test.index[i + steps - 1]])
-            # print(forecast_point_steps_ahead)
             steps_ahead_forecasts = pd.concat([steps_ahead_forecasts, forecast_point_steps_ahead], axis=0,
                                               ignore_index=False)
         y_test_prediction = steps_ahead_forecasts
-    # if self.model is not None:
-    #     self.model.endog = self.train_data
     return y_test_prediction, test_result
 
 
@@ -155,7 +159,12 @@ def run():
 
         for model_spec in MODEL_SPECS:
             try:
-                model = model_spec.init_model(endog=DF[GROUND_TRUTH_COLUMN][train_interval[0]:train_interval[1]])
+                model = None
+                if EXOG is not None:
+                    model = model_spec.init_model(endog=DF[GROUND_TRUTH_COLUMN][train_interval[0]:train_interval[1]],
+                                                  exog=EXOG[train_interval[0]:train_interval[1]])
+                else:
+                    model = model_spec.init_model(endog=DF[GROUND_TRUTH_COLUMN][train_interval[0]:train_interval[1]])
 
                 LOG.info(
                     "TRAIN model_spec={m} on train_interval={tri}".format(m=str(model_spec), tri=prettify_interval(
@@ -164,7 +173,9 @@ def run():
 
                 LOG.info("TEST model_spec={m} on test_interval={ti}".format(m=str(model_spec),
                                                                             ti=prettify_interval(test_interval)))
-                y_test_prediction, test_result = test_model(DF[GROUND_TRUTH_COLUMN], train_result,
+                y_test_prediction, test_result = test_model(endog_all=DF[GROUND_TRUTH_COLUMN],
+                                                            exog_all=EXOG,
+                                                            train_result=train_result,
                                                             start=test_interval[0],
                                                             end=test_interval[1],
                                                             steps=STEPS)
@@ -176,9 +187,10 @@ def run():
                     LOG.info("PICKLE test_result in file={f}".format(f=test_result_file_name))
                     with open(test_result_file_path, "w") as f:
                         test_result.save(test_result_file_path)
-            except:
+            except Exception:
                 LOG.error("Failed running model_spec={m} on train_interval={tri}, test_interval={ti}".format(
                     m=str(model_spec), tri=str(train_interval), ti=str(test_interval)))
+                LOG.error(traceback.format_exc())
         all_test_predictions_df = all_test_predictions_df.append(predictions_df, ignore_index=False)
     all_test_predictions_df.to_csv(os.path.join(relative_output_path, "predictions_df.csv"))
     LOG.info("FINISHED")

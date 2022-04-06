@@ -26,8 +26,11 @@ def plot_models_multi(data, ground_truth_col_name, model_col_names, interval=Non
     elif x_format == 'week':
         x_axis_locator = mdates.WeekdayLocator(byweekday=mdates.MO, interval=1)
         x_axis_formatter = mdates.ConciseDateFormatter(x_axis_locator)
+    elif x_format == 'year':
+        x_axis_locator = mdates.YearLocator(1)
+        x_axis_formatter = mdates.ConciseDateFormatter(x_axis_locator)
     else:
-        raise Exception("x_format must be 'month' or 'week'")
+        raise Exception("x_format must be 'month', 'week' or 'year")
 
     fig, ax = plt.subplots(figsize=figsize)
     data.plot(use_index=True, y=ground_truth_col_name, x_compat=True, ax=ax)

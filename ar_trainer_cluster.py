@@ -19,36 +19,40 @@ BASELINE_SHIFT = 1
 INCLUDE_EXOG = True  # If False, ignores SEARCH_QUERY_THRESHOLD value and does not add any search query terms to dataframe
 SEARCH_QUERY_THRESHOLD = 50  # options include 50, 100, 150, 200, 250, 300, 350, 400
 
-DF = get_week_range_df('week range', include_search_terms=INCLUDE_EXOG, search_query_threshold=SEARCH_QUERY_THRESHOLD)
+OUTSEASON_START_WEEK = 23
+OUTSEASON_END_WEEK = 38
+
+DF = get_week_range_df('week range', include_search_terms=INCLUDE_EXOG, search_query_threshold=SEARCH_QUERY_THRESHOLD,
+                       outseason_start_week=OUTSEASON_START_WEEK, outseason_end_week=OUTSEASON_END_WEEK)
 
 EXOG = None
 if INCLUDE_EXOG is True:
     EXOG = DF.drop(labels=['Disease Rate', 'year', 'week'], axis=1, inplace=False)
 
 TRAIN_INTERVALS = [
-    (to_week_range(2004, 2), to_week_range(2008, 52)),
-    (to_week_range(2005, 1), to_week_range(2009, 52)),
-    (to_week_range(2006, 2), to_week_range(2010, 52)),
-    (to_week_range(2007, 2), to_week_range(2011, 52)),
-    (to_week_range(2008, 2), to_week_range(2012, 52)),
-    (to_week_range(2009, 2), to_week_range(2013, 52)),
-    (to_week_range(2010, 2), to_week_range(2014, 52)),
-    (to_week_range(2011, 2), to_week_range(2015, 52)),
-    (to_week_range(2012, 2), to_week_range(2016, 52)),
-    (to_week_range(2013, 2), to_week_range(2017, 52)),
+    (to_week_range(2004, OUTSEASON_END_WEEK), to_week_range(2008, OUTSEASON_START_WEEK)),
+    (to_week_range(2005, OUTSEASON_END_WEEK), to_week_range(2009, OUTSEASON_START_WEEK)),
+    (to_week_range(2006, OUTSEASON_END_WEEK), to_week_range(2010, OUTSEASON_START_WEEK)),
+    (to_week_range(2007, OUTSEASON_END_WEEK), to_week_range(2011, OUTSEASON_START_WEEK)),
+    (to_week_range(2008, OUTSEASON_END_WEEK), to_week_range(2012, OUTSEASON_START_WEEK)),
+    (to_week_range(2009, OUTSEASON_END_WEEK), to_week_range(2013, OUTSEASON_START_WEEK)),
+    (to_week_range(2010, OUTSEASON_END_WEEK), to_week_range(2014, OUTSEASON_START_WEEK)),
+    (to_week_range(2011, OUTSEASON_END_WEEK), to_week_range(2015, OUTSEASON_START_WEEK)),
+    (to_week_range(2012, OUTSEASON_END_WEEK), to_week_range(2016, OUTSEASON_START_WEEK)),
+    (to_week_range(2013, OUTSEASON_END_WEEK), to_week_range(2017, OUTSEASON_START_WEEK)),
 ]
 
 TEST_INTERVALS = [
-    (to_week_range(2009, 1), to_week_range(2009, 52)),
-    (to_week_range(2010, 1), to_week_range(2010, 52)),
-    (to_week_range(2011, 2), to_week_range(2011, 52)),
-    (to_week_range(2012, 2), to_week_range(2012, 52)),
-    (to_week_range(2013, 2), to_week_range(2013, 52)),
-    (to_week_range(2014, 2), to_week_range(2014, 52)),
-    (to_week_range(2015, 2), to_week_range(2015, 52)),
-    (to_week_range(2016, 2), to_week_range(2016, 52)),
-    (to_week_range(2017, 2), to_week_range(2017, 52)),
-    (to_week_range(2018, 2), to_week_range(2018, 52)),
+    (to_week_range(2008, OUTSEASON_END_WEEK), to_week_range(2009, OUTSEASON_START_WEEK)),
+    (to_week_range(2009, OUTSEASON_END_WEEK), to_week_range(2010, OUTSEASON_START_WEEK)),
+    (to_week_range(2010, OUTSEASON_END_WEEK), to_week_range(2011, OUTSEASON_START_WEEK)),
+    (to_week_range(2011, OUTSEASON_END_WEEK), to_week_range(2012, OUTSEASON_START_WEEK)),
+    (to_week_range(2012, OUTSEASON_END_WEEK), to_week_range(2013, OUTSEASON_START_WEEK)),
+    (to_week_range(2013, OUTSEASON_END_WEEK), to_week_range(2014, OUTSEASON_START_WEEK)),
+    (to_week_range(2014, OUTSEASON_END_WEEK), to_week_range(2015, OUTSEASON_START_WEEK)),
+    (to_week_range(2015, OUTSEASON_END_WEEK), to_week_range(2016, OUTSEASON_START_WEEK)),
+    (to_week_range(2016, OUTSEASON_END_WEEK), to_week_range(2017, OUTSEASON_START_WEEK)),
+    (to_week_range(2017, OUTSEASON_END_WEEK), to_week_range(2018, OUTSEASON_START_WEEK)),
 ]
 
 MODEL_SPECS = [
@@ -96,10 +100,15 @@ def test_model(endog_all, exog_all, train_result, start, end, steps=1):
     else:
         endog_test = endog_all[start:end]
         steps_ahead_forecasts = endog_test.copy(deep=True).iloc[0:steps - 1]
-        for i in range(0, len(endog_test) - steps + 1):
-            # test_result = train_result.append(endog=[endog_test.iloc[i]], refit=False)
-            forecast_point_steps_ahead = pd.Series(test_result.predict(start=i, end=i + steps, dynamic=True)[steps - 1],
-                                                   index=[endog_test.index[i + steps - 1]])
+
+        for i in range(0, len(endog_test) - steps):
+            index_at_i = endog_test.index[i]
+            index_at_steps_ahead = endog_test.index[i + steps]
+
+            forecast_point_steps_ahead = pd.Series(
+                test_result.predict(start=index_at_i, end=index_at_steps_ahead, dynamic=True)[steps - 1],
+                index=[endog_test.index[i + steps - 1]])
+
             steps_ahead_forecasts = pd.concat([steps_ahead_forecasts, forecast_point_steps_ahead], axis=0,
                                               ignore_index=False)
         y_test_prediction = steps_ahead_forecasts

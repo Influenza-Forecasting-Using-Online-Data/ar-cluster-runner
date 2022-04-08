@@ -29,10 +29,19 @@ def get_datetime_df(index_col_name='year week', include_search_terms=True, searc
     return datetime_df
 
 
-def get_week_range_df(index_col_name='week range', include_search_terms=True, search_query_threshold=50):
-    df = get_datetime_df(index_col_name, include_search_terms=include_search_terms, search_query_threshold=search_query_threshold)
+def get_week_range_df(index_col_name='week range', include_search_terms=True, search_query_threshold=50,
+                      outseason_start_week=None, outseason_end_week=None):
+    df = get_datetime_df(index_col_name, include_search_terms=include_search_terms,
+                         search_query_threshold=search_query_threshold)
     df.set_index(index_col_name, inplace=True)
     df.index = pd.DatetimeIndex(df.index, closed='left').to_period('W')
+
+    if outseason_start_week is not None and outseason_end_week is not None:
+        if (outseason_start_week <= 0 and outseason_start_week > 52) or (
+                outseason_end_week <= 0 and outseason_end_week > 52):
+            raise Exception("outseason_start_week and outseason_end_week must be None or in interval [1, 52].")
+        # exclude weeks out of season
+        df = df.loc[~df['week'].isin([i for i in range(outseason_start_week, outseason_end_week + 1)])]
     return df
 
 

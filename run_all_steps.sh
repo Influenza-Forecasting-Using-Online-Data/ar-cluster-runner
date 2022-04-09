@@ -1,0 +1,1 @@
+nohup sh -c "./run.sh trainer 1; ./run.sh trainer 2; ./run.sh trainer 3; ./run.sh trainer 4;" $2 > seq.out 2>&1 &

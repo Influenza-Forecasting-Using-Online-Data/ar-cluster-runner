@@ -141,3 +141,37 @@ def get_best_performing_models(error_df):
         best_values.append(best_value)
 
     return pd.DataFrame({'years': error_df['years'], 'best model': best_columns, 'error': best_values})
+
+
+from sklearn.metrics import mean_squared_error, mean_absolute_error
+import numpy as np
+
+
+def get_error_on_interval(actual, predicted, error_type, interval):
+    actual_sliced = actual[interval[0]:interval[1]]
+    predicted_sliced = predicted[interval[0]:interval[1]]
+    if error_type.upper() == 'MAE':
+        return mean_absolute_error(actual_sliced, predicted_sliced)
+    elif error_type.upper() == 'MAPE':
+        return np.mean(np.abs((actual_sliced - predicted_sliced) / actual_sliced)) * 100
+    elif error_type.upper() == 'MSE':
+        return mean_squared_error(actual_sliced, predicted_sliced)
+    elif error_type.upper() == 'RMSE':
+        return np.sqrt(mean_squared_error(actual_sliced, predicted_sliced))
+    else:
+        raise Exception("error_type unknown. Must be mae, mape, mse or rmse.")
+
+
+def get_error_on_intervals_df(data, actual_col_name, predicted_col_names, error_type, intervals):
+    seasons_array = []
+    for interval in intervals:
+        seasons_array.append(str(interval[0].year) + '-' + str(interval[1].year))
+    result_df = pd.DataFrame({'season': seasons_array})
+    for predicted_col_name in predicted_col_names:
+        error_on_intervals_array = []
+        for interval in intervals:
+            error_on_intervals_array.append(
+                get_error_on_interval(data[actual_col_name], data[predicted_col_name], error_type,
+                                      interval))
+        result_df[predicted_col_name] = error_on_intervals_array
+    return result_df

@@ -8,13 +8,25 @@ from datetime import datetime
 import pandas as pd
 from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.tsa.statespace.sarimax import SARIMAX
+from sklearn import preprocessing
 
-from data.utils import get_week_range_df, to_week_range
+from data.utils import get_week_range_df, to_week_range, get_train_and_test_intervals
 from models.ar_model import ARModelSpecification
 
+
+def read_num_steps():
+    try:
+        return int(sys.argv[1])
+    except:
+        print("Cmd line argument STEPS must be integer value greater than 0")
+        raise Exception("Cmd line argument STEPS must be integer value greater than 0")
+
+    if STEPS < 1:
+        print("Cmd line argument STEPS must be integer value greater than 0")
+        raise Exception("Cmd line argument STEPS must be integer value greater than 0")
+
+
 GROUND_TRUTH_COLUMN = 'Disease Rate'
-PERSISTENCE_COL_NAME = 'Persistence'
-BASELINE_SHIFT = 1
 
 INCLUDE_EXOG = True  # If False, ignores SEARCH_QUERY_THRESHOLD value and does not add any search query terms to dataframe
 SEARCH_QUERY_THRESHOLD = 50  # options include 50, 100, 150, 200, 250, 300, 350, 400
@@ -22,49 +34,38 @@ SEARCH_QUERY_THRESHOLD = 50  # options include 50, 100, 150, 200, 250, 300, 350,
 OUTSEASON_START_WEEK = 23
 OUTSEASON_END_WEEK = 38
 
+ENFORCE_STATIONARITY = True
+ENFORCE_INVERTIBILITY = True
+
+SCALER = preprocessing.StandardScaler()  # None or sklearn.preprocessing scaler object (fit_transform interface)
+
 DF = get_week_range_df('week range', include_search_terms=INCLUDE_EXOG, search_query_threshold=SEARCH_QUERY_THRESHOLD,
-                       outseason_start_week=OUTSEASON_START_WEEK, outseason_end_week=OUTSEASON_END_WEEK)
+                       outseason_start_week=OUTSEASON_START_WEEK, outseason_end_week=OUTSEASON_END_WEEK,
+                       exog_scaler=SCALER)
 
 EXOG = None
 if INCLUDE_EXOG is True:
     EXOG = DF.drop(labels=['Disease Rate', 'year', 'week'], axis=1, inplace=False)
 
-TRAIN_INTERVALS = [
-    (to_week_range(2004, OUTSEASON_END_WEEK), to_week_range(2008, OUTSEASON_START_WEEK)),
-    (to_week_range(2005, OUTSEASON_END_WEEK), to_week_range(2009, OUTSEASON_START_WEEK)),
-    (to_week_range(2006, OUTSEASON_END_WEEK), to_week_range(2010, OUTSEASON_START_WEEK)),
-    (to_week_range(2007, OUTSEASON_END_WEEK), to_week_range(2011, OUTSEASON_START_WEEK)),
-    (to_week_range(2008, OUTSEASON_END_WEEK), to_week_range(2012, OUTSEASON_START_WEEK)),
-    (to_week_range(2009, OUTSEASON_END_WEEK), to_week_range(2013, OUTSEASON_START_WEEK)),
-    (to_week_range(2010, OUTSEASON_END_WEEK), to_week_range(2014, OUTSEASON_START_WEEK)),
-    (to_week_range(2011, OUTSEASON_END_WEEK), to_week_range(2015, OUTSEASON_START_WEEK)),
-    (to_week_range(2012, OUTSEASON_END_WEEK), to_week_range(2016, OUTSEASON_START_WEEK)),
-    (to_week_range(2013, OUTSEASON_END_WEEK), to_week_range(2017, OUTSEASON_START_WEEK)),
-]
+TRAIN_INTERVAL_NUM_YEARS = 5  # positive integer e.g., 2, 5, 10
 
-TEST_INTERVALS = [
-    (to_week_range(2008, OUTSEASON_END_WEEK), to_week_range(2009, OUTSEASON_START_WEEK)),
-    (to_week_range(2009, OUTSEASON_END_WEEK), to_week_range(2010, OUTSEASON_START_WEEK)),
-    (to_week_range(2010, OUTSEASON_END_WEEK), to_week_range(2011, OUTSEASON_START_WEEK)),
-    (to_week_range(2011, OUTSEASON_END_WEEK), to_week_range(2012, OUTSEASON_START_WEEK)),
-    (to_week_range(2012, OUTSEASON_END_WEEK), to_week_range(2013, OUTSEASON_START_WEEK)),
-    (to_week_range(2013, OUTSEASON_END_WEEK), to_week_range(2014, OUTSEASON_START_WEEK)),
-    (to_week_range(2014, OUTSEASON_END_WEEK), to_week_range(2015, OUTSEASON_START_WEEK)),
-    (to_week_range(2015, OUTSEASON_END_WEEK), to_week_range(2016, OUTSEASON_START_WEEK)),
-    (to_week_range(2016, OUTSEASON_END_WEEK), to_week_range(2017, OUTSEASON_START_WEEK)),
-    (to_week_range(2017, OUTSEASON_END_WEEK), to_week_range(2018, OUTSEASON_START_WEEK)),
-]
+TRAIN_INTERVALS, TEST_INTERVALS = get_train_and_test_intervals(TRAIN_INTERVAL_NUM_YEARS, OUTSEASON_START_WEEK,
+                                                               OUTSEASON_END_WEEK)
+
+SEASON_PERIOD = 52 - OUTSEASON_END_WEEK + 1 + OUTSEASON_START_WEEK
 
 MODEL_SPECS = [
-    ARModelSpecification(order=(1, 0, 1), seasonal_order=(2, 0, 0, 52), model_class=SARIMAX),
     ARModelSpecification(order=(1, 0, 1), model_class=SARIMAX),
-    ARModelSpecification(order=(2, 1, 1), seasonal_order=(0, 0, 2, 52), model_class=SARIMAX),
+    ARModelSpecification(order=(1, 0, 1), seasonal_order=(2, 0, 0, SEASON_PERIOD), model_class=SARIMAX),
+    ARModelSpecification(order=(1, 1, 1), model_class=SARIMAX),
+    ARModelSpecification(order=(2, 1, 1), seasonal_order=(0, 0, 2, SEASON_PERIOD), model_class=SARIMAX),
+    ARModelSpecification(order=(4, 1, 1), seasonal_order=(0, 0, 2, SEASON_PERIOD), model_class=SARIMAX),
     ARModelSpecification(order=(0, 1, 2), model_class=SARIMAX),
 ]
 
-STEPS = 2
-OPTIMIZE_METHOD = 'powell'
-MAXITER = 500
+STEPS = read_num_steps()
+OPTIMIZE_METHOD = 'bfgs'
+MAXITER = 1200
 COV_TYPE = None
 
 PICKLE_TEST_RESULT = False  # boolean
@@ -95,19 +96,19 @@ def train_model(model, method='powell', maxiter=500, cov_type=None):
 def test_model(endog_all, exog_all, train_result, start, end, steps=1):
     y_test_prediction = None
     test_result = train_result.apply(endog=endog_all, exog=exog_all, refit=False)
+    endog_test = endog_all[start:end]
     if steps == 1:
-        y_test_prediction = test_result.predict(start=start, end=end, dynamic=False)
+        y_test_prediction = test_result.predict(start=endog_test.index[0], end=endog_test.index[-1], dynamic=False)
     else:
-        endog_test = endog_all[start:end]
         steps_ahead_forecasts = endog_test.copy(deep=True).iloc[0:steps - 1]
 
-        for i in range(0, len(endog_test) - steps):
+        for i in range(0, len(endog_test) - steps + 1):
             index_at_i = endog_test.index[i]
-            index_at_steps_ahead = endog_test.index[i + steps]
+            index_at_steps_ahead = endog_test.index[i + steps - 1]
 
             forecast_point_steps_ahead = pd.Series(
                 test_result.predict(start=index_at_i, end=index_at_steps_ahead, dynamic=True)[steps - 1],
-                index=[endog_test.index[i + steps - 1]])
+                index=[index_at_steps_ahead])
 
             steps_ahead_forecasts = pd.concat([steps_ahead_forecasts, forecast_point_steps_ahead], axis=0,
                                               ignore_index=False)
@@ -125,6 +126,11 @@ def write_summary(relative_output_path):
         f.write("\n")
         f.write("STEPS = %i\n\n" % STEPS)
         f.write("OPTIMIZATION METHOD = {o} \n\n".format(o=OPTIMIZE_METHOD))
+        f.write("EXOGENOUS VARIABLES = {b}\n".format(b=INCLUDE_EXOG))
+        if INCLUDE_EXOG:
+            f.write(padding + "EXOGENOUS THRESHOLD = {t}\n".format(t=SEARCH_QUERY_THRESHOLD))
+            f.write(padding + "EXOGENOUS SCALER = {s}\n\n".format(
+                s=str(SCALER.__repr__() if SCALER is not None else 'None')))
         f.write("TRAINING/TESTING INTERVALS\n")
         for i in range(0, len(TRAIN_INTERVALS)):
             f.write(padding + "# " + str(i + 1) + ": \n" + padding + padding + "training=" + prettify_interval(
@@ -140,7 +146,7 @@ def run():
     start_time = time.time()
     if not os.path.exists(OUTPUT_ROOT_DIR):
         os.mkdir(OUTPUT_ROOT_DIR)
-    folder_timestamp = str(datetime.now()).replace(":", "_").replace(".", "_")
+    folder_timestamp = str(datetime.now()).replace(":", "_").replace(".", "_").replace(" ", "_")
     relative_output_path = os.path.join(OUTPUT_ROOT_DIR, folder_timestamp)
     os.mkdir(relative_output_path)
     print('Created report folder at %s ...\n' % str(relative_output_path))
@@ -162,18 +168,23 @@ def run():
         test_interval = TEST_INTERVALS[i]
         predictions_df = DF.loc[test_interval[0]:test_interval[1]].copy(deep=True)
 
-        test_result_folder_path = os.path.join(relative_output_path, prettify_interval(test_interval))
-        if not os.path.exists(test_result_folder_path):
-            os.mkdir(test_result_folder_path)
+        if PICKLE_TEST_RESULT is True:
+            test_result_folder_path = os.path.join(relative_output_path, prettify_interval(test_interval))
+            if not os.path.exists(test_result_folder_path):
+                os.mkdir(test_result_folder_path)
 
         for model_spec in MODEL_SPECS:
             try:
                 model = None
                 if EXOG is not None:
                     model = model_spec.init_model(endog=DF[GROUND_TRUTH_COLUMN][train_interval[0]:train_interval[1]],
-                                                  exog=EXOG[train_interval[0]:train_interval[1]])
+                                                  exog=EXOG[train_interval[0]:train_interval[1]],
+                                                  enforce_stationarity=ENFORCE_STATIONARITY,
+                                                  enforce_invertibility=ENFORCE_INVERTIBILITY)
                 else:
-                    model = model_spec.init_model(endog=DF[GROUND_TRUTH_COLUMN][train_interval[0]:train_interval[1]])
+                    model = model_spec.init_model(endog=DF[GROUND_TRUTH_COLUMN][train_interval[0]:train_interval[1]],
+                                                  enforce_stationarity=ENFORCE_STATIONARITY,
+                                                  enforce_invertibility=ENFORCE_INVERTIBILITY)
 
                 LOG.info(
                     "TRAIN model_spec={m} on train_interval={tri}".format(m=str(model_spec), tri=prettify_interval(
@@ -207,13 +218,4 @@ def run():
 
 
 if __name__ == '__main__':
-    try:
-        STEPS = int(sys.argv[1])
-    except:
-        print("Cmd line argument STEPS must be integer value greater than 0")
-        raise Exception("Cmd line argument STEPS must be integer value greater than 0")
-
-    if STEPS < 1:
-        print("Cmd line argument STEPS must be integer value greater than 0")
-        raise Exception("Cmd line argument STEPS must be integer value greater than 0")
     run()

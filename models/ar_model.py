@@ -30,10 +30,11 @@ class ARModelSpecification:
         sorder_str = '' if s_order is None else str(s_order)
         return str(order) + sorder_str
 
-    def init_model(self, endog, exog=None):
+    def init_model(self, endog, exog=None, enforce_stationarity=True, enforce_invertibility=True):
         self.model_name = self._get_ar_model_name(self.order, self.seasonal_order)
         return self.model_class(endog=endog, exog=exog, order=self.order, seasonal_order=self.seasonal_order,
-                                freq='W')  # TODO: check if freq correct
+                                freq='W', enforce_stationarity=enforce_stationarity,
+                                enforce_invertibility=enforce_invertibility)  # TODO: check if freq correct
 
     def __eq__(self, other):
         if self.model_class == other.model_class and self.order == other.order and self.seasonal_order == other.seasonal_order:

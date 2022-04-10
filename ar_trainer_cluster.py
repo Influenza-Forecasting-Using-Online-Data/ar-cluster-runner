@@ -55,17 +55,34 @@ TRAIN_INTERVALS, TEST_INTERVALS = get_train_and_test_intervals(TRAIN_INTERVAL_NU
 SEASON_PERIOD = 52 - OUTSEASON_END_WEEK + 1 + OUTSEASON_START_WEEK
 
 MODEL_SPECS = [
+    # best BIC (without differencing)
     ARModelSpecification(order=(1, 0, 1), model_class=SARIMAX),
+    # best AIC (without differencing)
     ARModelSpecification(order=(1, 0, 1), seasonal_order=(2, 0, 0, SEASON_PERIOD), model_class=SARIMAX),
     ARModelSpecification(order=(1, 1, 1), model_class=SARIMAX),
+    ARModelSpecification(order=(1, 1, 1), seasonal_order=(2, 0, 0, SEASON_PERIOD), model_class=SARIMAX),
+    # best AIC (with differencing)
     ARModelSpecification(order=(2, 1, 1), seasonal_order=(0, 0, 2, SEASON_PERIOD), model_class=SARIMAX),
-    ARModelSpecification(order=(4, 1, 1), seasonal_order=(0, 0, 2, SEASON_PERIOD), model_class=SARIMAX),
+    # best BIC (with differencing)
     ARModelSpecification(order=(0, 1, 2), model_class=SARIMAX),
+    # contender - short-lag
+    ARModelSpecification(order=(3, 0, 2), model_class=SARIMAX),
+    ARModelSpecification(order=(3, 0, 2), seasonal_order=(1, 0, 0, SEASON_PERIOD), model_class=SARIMAX),
+    # contender - medium-lag
+    ARModelSpecification(order=(5, 0, 3), model_class=SARIMAX),
+    ARModelSpecification(order=(5, 0, 3), seasonal_order=(1, 0, 0, SEASON_PERIOD), model_class=SARIMAX),
+    ARModelSpecification(order=(5, 0, 3), seasonal_order=(1, 0, 1, SEASON_PERIOD), model_class=SARIMAX),
+    ARModelSpecification(order=(5, 0, 3), seasonal_order=(2, 0, 0, SEASON_PERIOD), model_class=SARIMAX),
+    ARModelSpecification(order=(5, 0, 3), seasonal_order=(2, 0, 1, SEASON_PERIOD), model_class=SARIMAX),
+    # contender - long-lag
+    ARModelSpecification(order=(10, 0, 3), seasonal_order=(1, 0, 0, SEASON_PERIOD), model_class=SARIMAX),
+    ARModelSpecification(order=(10, 0, 3), seasonal_order=(1, 0, 1, SEASON_PERIOD), model_class=SARIMAX),
+    ARModelSpecification(order=(10, 0, 3), seasonal_order=(2, 0, 0, SEASON_PERIOD), model_class=SARIMAX),
 ]
 
 STEPS = read_num_steps()
-OPTIMIZE_METHOD = 'bfgs'
-MAXITER = 1200
+OPTIMIZE_METHOD = 'powell'
+MAXITER = 1800
 COV_TYPE = None
 
 PICKLE_TEST_RESULT = False  # boolean

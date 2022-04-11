@@ -1,0 +1,168 @@
+
+
+Season: 2004 - 2005
+KPSS Statistic: 0.13539162530301838
+p-value: 0.1
+num lags: 10
+Critial Values:
+   10% : 0.347
+   5% : 0.463
+   2.5% : 0.574
+   1% : 0.739
+Result: The series is stationary
+
+
+Season: 2005 - 2006
+KPSS Statistic: 0.1278606932753031
+p-value: 0.1
+num lags: 10
+Critial Values:
+   10% : 0.347
+   5% : 0.463
+   2.5% : 0.574
+   1% : 0.739
+Result: The series is stationary
+
+
+Season: 2006 - 2007
+KPSS Statistic: 0.12257676927201488
+p-value: 0.1
+num lags: 10
+Critial Values:
+   10% : 0.347
+   5% : 0.463
+   2.5% : 0.574
+   1% : 0.739
+Result: The series is stationary
+
+
+Season: 2007 - 2008
+KPSS Statistic: 0.16472506687534488
+p-value: 0.1
+num lags: 10
+Critial Values:
+   10% : 0.347
+   5% : 0.463
+   2.5% : 0.574
+   1% : 0.739
+Result: The series is stationary
+
+
+Season: 2008 - 2009
+KPSS Statistic: 0.1574724404866942
+p-value: 0.1
+num lags: 10
+Critial Values:
+   10% : 0.347
+   5% : 0.463
+   2.5% : 0.574
+   1% : 0.739
+Result: The series is stationary
+
+
+Season: 2009 - 2010
+KPSS Statistic: 0.41425515107830757
+p-value: 0.07101071074210881
+num lags: 10
+Critial Values:
+   10% : 0.347
+   5% : 0.463
+   2.5% : 0.574
+   1% : 0.739
+Result: The series is stationary
+
+
+Season: 2010 - 2011
+KPSS Statistic: 0.1687653945488799
+p-value: 0.1
+num lags: 10
+Critial Values:
+   10% : 0.347
+   5% : 0.463
+   2.5% : 0.574
+   1% : 0.739
+Result: The series is stationary
+
+
+Season: 2011 - 2012
+KPSS Statistic: 0.17046988772771085
+p-value: 0.1
+num lags: 10
+Critial Values:
+   10% : 0.347
+   5% : 0.463
+   2.5% : 0.574
+   1% : 0.739
+Result: The series is stationary
+
+
+Season: 2012 - 2013
+KPSS Statistic: 0.1461196106697848
+p-value: 0.1
+num lags: 10
+Critial Values:
+   10% : 0.347
+   5% : 0.463
+   2.5% : 0.574
+   1% : 0.739
+Result: The series is stationary
+
+
+Season: 2013 - 2014
+KPSS Statistic: 0.16142388088176843
+p-value: 0.1
+num lags: 10
+Critial Values:
+   10% : 0.347
+   5% : 0.463
+   2.5% : 0.574
+   1% : 0.739
+Result: The series is stationary
+
+
+Season: 2014 - 2015
+KPSS Statistic: 0.14003385144073954
+p-value: 0.1
+num lags: 10
+Critial Values:
+   10% : 0.347
+   5% : 0.463
+   2.5% : 0.574
+   1% : 0.739
+Result: The series is stationary
+
+
+Season: 2015 - 2016
+KPSS Statistic: 0.14886116181136852
+p-value: 0.1
+num lags: 10
+Critial Values:
+   10% : 0.347
+   5% : 0.463
+   2.5% : 0.574
+   1% : 0.739
+Result: The series is stationary
+
+
+Season: 2016 - 2017
+KPSS Statistic: 0.2043036359724524
+p-value: 0.1
+num lags: 10
+Critial Values:
+   10% : 0.347
+   5% : 0.463
+   2.5% : 0.574
+   1% : 0.739
+Result: The series is stationary
+
+
+Season: 2017 - 2018
+KPSS Statistic: 0.13032884581135037
+p-value: 0.1
+num lags: 10
+Critial Values:
+   10% : 0.347
+   5% : 0.463
+   2.5% : 0.574
+   1% : 0.739
+Result: The series is stationary

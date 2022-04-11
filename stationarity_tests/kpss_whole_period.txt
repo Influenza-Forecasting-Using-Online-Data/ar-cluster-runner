@@ -1,0 +1,9 @@
+KPSS Statistic: 0.04543745650875055
+p-value: 0.1
+num lags: 19
+Critial Values:
+   10% : 0.347
+   5% : 0.463
+   2.5% : 0.574
+   1% : 0.739
+Result: The series is stationary

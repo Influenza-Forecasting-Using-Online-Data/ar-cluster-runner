@@ -1,0 +1,140 @@
+
+
+Season: 2004 - 2005
+ADF Statistic: -1.054451
+p-value: 0.732890
+Critical Values:
+	1%: -3.621
+	5%: -2.944
+	10%: -2.610
+Result: The series is stationary
+
+
+Season: 2005 - 2006
+ADF Statistic: -2.341878
+p-value: 0.158817
+Critical Values:
+	1%: -3.670
+	5%: -2.964
+	10%: -2.621
+Result: The series is stationary
+
+
+Season: 2006 - 2007
+ADF Statistic: -2.439798
+p-value: 0.130817
+Critical Values:
+	1%: -3.633
+	5%: -2.949
+	10%: -2.613
+Result: The series is stationary
+
+
+Season: 2007 - 2008
+ADF Statistic: -1.908715
+p-value: 0.327973
+Critical Values:
+	1%: -3.633
+	5%: -2.949
+	10%: -2.613
+Result: The series is stationary
+
+
+Season: 2008 - 2009
+ADF Statistic: -1.601506
+p-value: 0.482837
+Critical Values:
+	1%: -3.627
+	5%: -2.946
+	10%: -2.612
+Result: The series is stationary
+
+
+Season: 2009 - 2010
+ADF Statistic: -0.906380
+p-value: 0.785864
+Critical Values:
+	1%: -3.633
+	5%: -2.949
+	10%: -2.613
+Result: The series is stationary
+
+
+Season: 2010 - 2011
+ADF Statistic: -2.525452
+p-value: 0.109404
+Critical Values:
+	1%: -3.633
+	5%: -2.949
+	10%: -2.613
+Result: The series is stationary
+
+
+Season: 2011 - 2012
+ADF Statistic: -1.084480
+p-value: 0.721221
+Critical Values:
+	1%: -3.627
+	5%: -2.946
+	10%: -2.612
+Result: The series is stationary
+
+
+Season: 2012 - 2013
+ADF Statistic: -1.297040
+p-value: 0.630525
+Critical Values:
+	1%: -3.627
+	5%: -2.946
+	10%: -2.612
+Result: The series is stationary
+
+
+Season: 2013 - 2014
+ADF Statistic: -2.521885
+p-value: 0.110240
+Critical Values:
+	1%: -3.679
+	5%: -2.968
+	10%: -2.623
+Result: The series is stationary
+
+
+Season: 2014 - 2015
+ADF Statistic: -1.401354
+p-value: 0.581627
+Critical Values:
+	1%: -3.627
+	5%: -2.946
+	10%: -2.612
+Result: The series is stationary
+
+
+Season: 2015 - 2016
+ADF Statistic: -1.383025
+p-value: 0.590387
+Critical Values:
+	1%: -3.633
+	5%: -2.949
+	10%: -2.613
+Result: The series is stationary
+
+
+Season: 2016 - 2017
+ADF Statistic: -2.055299
+p-value: 0.262865
+Critical Values:
+	1%: -3.654
+	5%: -2.957
+	10%: -2.618
+Result: The series is stationary
+
+
+Season: 2017 - 2018
+ADF Statistic: -1.790513
+p-value: 0.385182
+Critical Values:
+	1%: -3.633
+	5%: -2.949
+	10%: -2.613
+Result: The series is stationary

@@ -7,3 +7,13 @@ Critial Values:
    2.5% : 0.574
    1% : 0.739
 Result: The series is stationary
+
+Interpretation:
+- hypothesis(H0): assume trend stationary
+- since 0.04 < 0.34, 0.46, 0.57, 0.73 => null hypothesis can NOT be rejected
+- p > 0.05 => 0.1 probability that H0 will be rejected
+ => H0 has ~0.9% probability to NOT be rejected
+
+===> data is stationary
+
+*** no unit root != trend-stationarity, BUT unit root == non-stationarity

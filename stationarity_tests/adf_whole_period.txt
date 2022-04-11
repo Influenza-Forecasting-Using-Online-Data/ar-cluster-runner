@@ -4,3 +4,4 @@ Critical Values:
 	1%: -3.442
 	5%: -2.867
 	10%: -2.570
+Result: The series is not stationary
